@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,12 +8,12 @@ cloudinary.config({
 });
 
 export const uploadMedia = async (fileBuffer: Buffer, folder: string) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<UploadApiResponse>((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       { folder: `portfolio/${folder}`, format: 'webp' },
-      (error, result) => {
+      (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (error) reject(error);
-        else resolve(result);
+        else if (result) resolve(result);
       }
     ).end(fileBuffer);
   });
