@@ -2,23 +2,13 @@
   "name": "my-portfolio",
   "version": "1.0.0",
   "description": "Portfolio and CMS Platform",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pinotc/my-portfolio.git"
-  },
-  "keywords": [],
-  "author": "LÊ VĂN ĐẠT",
+  "author": "LÊ ĐẠT",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pinotc/my-portfolio/issues"
-  },
-  "homepage": "https://github.com/pinotc/my-portfolio#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "npx prisma generate"
+    "lint": "next lint"
   },
   "dependencies": {
     "@google-analytics/data": "^6.1.0",
@@ -32,7 +22,7 @@
     "cloudinary": "^2.0.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.0",
-    "lucide-react": "^1.20.0",
+    "lucide-react": "latest",
     "next": "^15.0.0",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
