@@ -18,7 +18,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "chmod +x node_modules/.bin/prisma && npx prisma generate"
   },
   "dependencies": {
     "@google-analytics/data": "^6.1.0",
