@@ -47,12 +47,12 @@ export default function ProfileInfoForm({ initialData }: { initialData: any }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1"><LinkIcon className="w-3 h-3"/> GitHub URL</label>
+          <label className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1"><LinkIcon className="w-3 h-3"/> GitHub URL</label>
           <input name="githubUrl" defaultValue={initialData?.githubUrl || ""} placeholder="https://github.com/..." className="w-full px-4 py-2 bg-background border border-border rounded-lg text-sm" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1"><LinkIcon className="w-3 h-3"/> LinkedIn URL</label>
+          <label className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1"><LinkIcon className="w-3 h-3"/> LinkedIn URL</label>
           <input name="linkedinUrl" defaultValue={initialData?.linkedinUrl || ""} placeholder="https://linkedin.com/in/..." className="w-full px-4 py-2 bg-background border border-border rounded-lg text-sm" />
         </div>
       </div>

@@ -18,11 +18,6 @@ export async function getProfile() {
 // ================= CẬP NHẬT THÔNG TIN PROFILE =================
 export async function updateProfileInfoAction(formData: FormData) {
   try {
-    const fullName = formData.get("fullName") as string;
-    const jobTitle = formData.get("jobTitle") as string;
-    const bio = formData.get("bio") as string;
-    const avatarUrl = formData.get("avatarUrl") as string;
-    const coverUrl = formData.get("coverUrl") as string;
     const email = formData.get("email") as string;
     const linkedinUrl = formData.get("linkedinUrl") as string;
     const githubUrl = formData.get("githubUrl") as string;
@@ -32,11 +27,11 @@ export async function updateProfileInfoAction(formData: FormData) {
     if (existing) {
       await prisma.profile.update({
         where: { id: existing.id },
-        data: { fullName, jobTitle, bio, avatarUrl, coverUrl, email, linkedinUrl, githubUrl }
+        data: { email, linkedinUrl, githubUrl }
       });
     } else {
       await prisma.profile.create({
-        data: { fullName, jobTitle, bio, avatarUrl, coverUrl, email, linkedinUrl, githubUrl }
+        data: { email, linkedinUrl, githubUrl }
       });
     }
 

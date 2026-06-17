@@ -55,9 +55,6 @@ export function BlogCarousel({ posts }: { posts: any[] }) {
 
             {/* 2. Hình ảnh Cover */}
             <div className="relative h-48 overflow-hidden bg-[#030712] border-b border-slate-800">
-              <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 text-slate-400 text-[10px] rounded backdrop-blur-md border border-slate-700 z-10 flex items-center gap-1 font-mono">
-                <span className="text-pink-500">{"<"}</span>Image <span className="text-blue-400">src</span><span className="text-pink-500">=</span>{"{"}cover{"}"} <span className="text-pink-500">{"/>"}</span>
-              </div>
               {post.coverImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -75,7 +72,6 @@ export function BlogCarousel({ posts }: { posts: any[] }) {
             {/* 3. Nội dung (Body) */}
             <div className="p-6 flex flex-col flex-1 font-sans">
               <div className="flex items-start gap-2 mb-3 text-slate-500 font-mono text-sm mt-1">
-                <span className="mt-0.5 shrink-0">$ cat</span>
                 <h3 className="text-xl font-bold text-white font-sans line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors">
                   {post.title}
                 </h3>

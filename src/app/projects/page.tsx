@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { ArrowLeft, Github, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 
 export default async function AllProjectsPage() {
   // Lấy toàn bộ project từ DB
@@ -33,7 +33,7 @@ export default async function AllProjectsPage() {
             <Link 
               href={`/projects/${project.id}`} 
               key={project.id} 
-              className="group flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] block"
+              className="group flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
             >
               {/* Top Bar Coding */}
               <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800">
@@ -87,7 +87,21 @@ export default async function AllProjectsPage() {
                 <div className="pt-4 border-t border-slate-800 flex flex-wrap gap-5 mt-auto font-mono text-sm">
                   {project.githubUrl && (
                     <div className="flex items-center gap-2 text-slate-400 group/link">
-                      <Github className="w-4 h-4" /> 
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="w-4 h-4"
+                      >
+                        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 8 18v4"></path>
+                        <path d="M12 18h.01"></path>
+                      </svg>
                       <span>Source</span>
                     </div>
                   )}

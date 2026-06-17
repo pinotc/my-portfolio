@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, MessageSquare, Activity, Database, Laptop, Factory, Briefcase, Github, ExternalLink, GraduationCap, MapPin, BookOpen, Trophy, School, Calendar, Camera, Map, Compass, Image as ImageIcon} from "lucide-react";
+import { ArrowRight, MessageSquare, Activity, Database, Laptop, Factory, Briefcase, ExternalLink, GraduationCap, MapPin, BookOpen, Trophy, School, Calendar, Camera, Map, Compass, Image as ImageIcon} from "lucide-react";
 import { prisma } from "@/lib/db";
 import HeroWrapper from "@/components/3d/HeroWrapper";
 import Header from "@/components/Header";
@@ -45,7 +45,6 @@ export default async function HomePage() {
     prisma.photoAlbum.findMany({
       orderBy: { createdAt: "desc" },
       take: 4,
-      // 🔥 KÉO THÊM ẢNH TỪ DB TẠI ĐÂY 🔥
       include: { 
         photos: true 
       }
@@ -425,7 +424,21 @@ export default async function HomePage() {
                   <div className="pt-4 border-t border-slate-800 flex flex-wrap gap-5 mt-auto font-mono text-sm">
                     {project.githubUrl && (
                       <div className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group/link">
-                        <Github className="w-4 h-4" /> 
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          width="24" 
+                          height="24" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          className="w-4 h-4"
+                        >
+                          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 8 18v4"></path>
+                          <path d="M12 18h.01"></path>
+                        </svg>
                         <span className="group-hover/link:underline decoration-slate-600 underline-offset-4">view-source</span>
                       </div>
                     )}
@@ -537,9 +550,6 @@ export default async function HomePage() {
 
                     {/* Khu vực hiển thị Hình ảnh */}
                     <div className="h-48 relative overflow-hidden bg-[#030712] border-b border-slate-800">
-                      <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 text-slate-400 text-[10px] rounded backdrop-blur-md border border-slate-700 z-20 flex items-center gap-1 font-mono pointer-events-none">
-                        <span className="text-pink-500">{"<"}</span>Album <span className="text-blue-400">type</span><span className="text-pink-500">=</span><span className="text-yellow-300">"{album.category}"</span> <span className="text-pink-500">{"/>"}</span>
-                      </div>
                       <AlbumSlideshow album={album} />
                     </div>
 
@@ -586,9 +596,6 @@ export default async function HomePage() {
                           <div className="w-2.5 h-2.5 rounded-full bg-slate-700 group-hover:bg-yellow-500/80 transition-colors" />
                           <div className="w-2.5 h-2.5 rounded-full bg-slate-700 group-hover:bg-green-500/80 transition-colors" />
                         </div>
-                        <span className="ml-2 text-[11px] text-slate-500 select-none">
-                          trip_<span className="text-yellow-300">{adv.location.replace(/\s+/g, '_').toLowerCase()}</span>.md
-                        </span>
                       </div>
                     </div>
 
