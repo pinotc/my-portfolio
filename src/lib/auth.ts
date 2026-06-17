@@ -10,16 +10,7 @@ export const auth = betterAuth({
     enabled: true,
   },
   session: {
-    expiresIn: "7d", 
-    updateAge: "1d",
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "EDITOR",
-      },
-    },
+    expiresIn: 60 * 60 * 24 * 7, // 7 ngày (tính bằng giây)
+    updateAge: 60 * 60 * 24,     // 1 ngày (tính bằng giây)
   },
 });

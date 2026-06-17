@@ -1,28 +1,56 @@
 {
   "name": "my-portfolio",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "Portfolio and CMS Platform",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pinotc/my-portfolio.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "LÊ VĂN ĐẠT",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/pinotc/my-portfolio/issues"
   },
   "homepage": "https://github.com/pinotc/my-portfolio#readme",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate"
+  },
   "dependencies": {
+    "@google-analytics/data": "^6.1.0",
+    "@next/third-parties": "^16.2.9",
     "@prisma/client": "^6.15.0",
-    "prisma": "^6.15.0"
+    "@react-three/drei": "^10.0.0-rc.3",
+    "@react-three/fiber": "^9.0.0-rc.10",
+    "@tiptap/react": "^2.2.0",
+    "@tiptap/starter-kit": "^2.2.0",
+    "better-auth": "^1.0.0",
+    "cloudinary": "^2.0.0",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.300.0",
+    "next": "^15.0.0",
+    "next-themes": "^0.4.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-is": "^19.2.7",
+    "recharts": "^3.8.1",
+    "tailwind-merge": "^2.2.0",
+    "three": "^0.160.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3"
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.160.0",
+    "postcss": "^8.4.35",
+    "prisma": "^6.15.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
   }
 }
