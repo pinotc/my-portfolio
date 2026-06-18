@@ -12,6 +12,7 @@ import { TypewriterText } from "@/components/typewriter-text";
 import { AlbumSlideshow } from "@/components/album-slideshow";
 import { BlogCarousel } from "@/components/blog-carousel";
 
+export const dynamic = "force-dynamic"; 
 export default async function HomePage() {
   // 1. TỐI ƯU HÓA: Fetch toàn bộ dữ liệu song song cùng một lúc
   const [
