@@ -71,7 +71,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header homeProfile={homeProfile} />
 
       {/* ================= HERO SECTION ================= */}
       <main id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">

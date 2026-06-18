@@ -4,7 +4,20 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Terminal } from "lucide-react";
 
-export default function Header() {
+// 1. Khai báo khuôn mẫu cho dữ liệu truyền vào Header
+type HeaderProps = {
+  homeProfile?: any; // Đặt optional để tránh lỗi nếu dữ liệu chưa kịp tải
+};
+
+// 2. Khai báo khuôn mẫu cho từng mục menu
+type NavItem = {
+  name: string;
+  href: string;
+  show?: boolean;
+};
+
+// 3. Nhận biến homeProfile từ component cha truyền vào
+export default function Header({ homeProfile }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -15,16 +28,16 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Đưa danh sách menu vào mảng để code gọn gàng hơn
-  const navItems = [
-    { name: "home", href: "#home" },
-    { name: "experience", href: "#experience" },
-    { name: "education", href: "#education" },
-    { name: "projects", href: "#portfolio" },
-    { name: "blog", href: "#blog" },
-    { name: "media", href: "#media" },
-    { name: "contact", href: "#contact" },
-  ];
+  // 4. Ép kiểu NavItem[] và dùng optional chaining (?.) để đọc dữ liệu an toàn
+  const navItems: NavItem[] = [
+      { name: "home", href: "#home", show: true },
+      { name: "experience", href: "#experience", show: homeProfile?.isShowExperience ?? true },
+      { name: "education", href: "#education", show: homeProfile?.isShowEducation ?? true },
+      { name: "projects", href: "#portfolio", show: homeProfile?.isShowProjects ?? true },
+      { name: "blog", href: "#blog", show: homeProfile?.isShowBlog ?? true },
+      { name: "media", href: "#media", show: homeProfile?.isShowMedia ?? true },
+      { name: "contact", href: "#contact", show: true },
+    ];
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-500 border-b font-mono ${
@@ -45,18 +58,16 @@ export default function Header() {
         </Link>
 
         {/* ================= NAVIGATION LINKS ================= */}
-        <nav className="hidden md:flex items-center gap-7 text-sm">
-          {navItems.map((item) => (
+       <nav className="hidden md:flex items-center gap-7 text-sm">
+          {/* Lọc: Chỉ render những item có show là true */}
+          {navItems.filter((item) => item.show).map((item) => (
             <Link 
               key={item.name} 
               href={item.href} 
               className="group relative text-slate-400 hover:text-emerald-400 transition-colors"
             >
-              {/* Tiền tố ./ giả lập lệnh thực thi */}
               <span className="text-slate-600 group-hover:text-pink-500 transition-colors">./</span>
               {item.name}
-              
-              {/* Hiệu ứng gạch dưới gõ phím khi hover */}
               <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-emerald-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}

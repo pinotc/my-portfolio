@@ -212,7 +212,6 @@ export default function Footer({ email, githubUrl, linkedinUrl }: FooterProps) {
         <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>{"// © 2026 Dasi. All rights reserved."}</p>
           <p className="flex items-center gap-2">
-            <span className="text-pink-500">dependencies:</span> 
             <span className="text-yellow-300">{"{ Next.js, React, Tailwind, Prisma }"}</span>
           </p>
         </div>
