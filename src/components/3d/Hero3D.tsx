@@ -145,8 +145,8 @@ function BrainNetwork() {
       <points ref={pointsRef}>
         {/* THÊM KEY VÀO DÒNG NÀY */}
         <bufferGeometry key={`points-${positions.length}`}>
-          <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={colors.length / 3} array={colors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <pointsMaterial size={0.08} vertexColors transparent opacity={0.9} blending={THREE.AdditiveBlending} />
       </points>
@@ -155,8 +155,8 @@ function BrainNetwork() {
       <lineSegments ref={linesRef}>
         {/* THÊM KEY VÀO DÒNG NÀY */}
         <bufferGeometry key={`lines-${linePositions.length}`}>
-          <bufferAttribute attach="attributes-position" count={linePositions.length / 3} array={linePositions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={lineColors.length / 3} array={lineColors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <lineBasicMaterial vertexColors transparent opacity={0.25} blending={THREE.AdditiveBlending} />
       </lineSegments>
