@@ -350,20 +350,22 @@ export default async function HomePage() {
 
             {/* NÚT XEM TẤT CẢ DỰ ÁN */}
             <Link href="/projects" className="text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center justify-start md:justify-end gap-2 group">
-              <span className="text-slate-500 group-hover:text-emerald-300 transition-colors">./view_all_projects.sh</span>
+              <span className="text-slate-500 group-hover:text-emerald-300 transition-colors">./view_all_projects</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {/* Grid Layout - 3 cột trên Desktop (giống ban đầu) */}
+          {/* Grid Layout - 3 cột trên Desktop (giống ban đầu) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {personalProjects.map((project: any) => (
-              // Bọc thẻ bằng thẻ Link để click vào chuyển sang trang chi tiết
-              <Link 
-                href={`/projects/${project.id}`}
+              // 1. ĐỔI THẺ BỌC NGOÀI THÀNH THẺ DIV (Thêm chữ relative)
+              <div 
                 key={project.id} 
-                className="group flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+                className="group relative flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
               >
+                {/* 2. TUYỆT CHIÊU: Link tàng hình phủ kín toàn bộ Card (z-10) */}
+                <Link href={`/projects/${project.id}`} className="absolute inset-0 z-10" aria-label={`Xem chi tiết ${project.title}`} />
                 
                 {/* 1. Thanh tiêu đề (Top Bar) phong cách CODING */}
                 <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800">
@@ -388,7 +390,7 @@ export default async function HomePage() {
                   </div>
                 )}
 
-                {/* 3. Nội dung (Body) - HIỂN THỊ TEXT BÌNH THƯỜNG (TERMINAL) */}
+                {/* 3. Nội dung (Body) */}
                 <div className="p-6 flex-1 flex flex-col font-sans">
                   
                   {/* Project Name */}
@@ -406,7 +408,6 @@ export default async function HomePage() {
                   <div className="mb-6">
                     <div className="text-xs text-slate-500 font-mono mb-2">{"// Technologies"}</div>
                     <div className="flex flex-wrap gap-2">
-                      {/* Thêm slice(0, 3) để giới hạn 3 công cụ tránh bị tràn thẻ, phần dư hiện +X */}
                       {project.technologies.slice(0, 3).map((tech: string, idx: number) => (
                         <span key={idx} className="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
                           {tech}
@@ -420,38 +421,41 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  {/* Các nút Links */}
-                  <div className="pt-4 border-t border-slate-800 flex flex-wrap gap-5 mt-auto font-mono text-sm">
+                  {/* 3. CÁC NÚT LINKS: Thêm relative z-20 để nổi lên trên cùng, hứng cú click */}
+                  <div className="pt-4 border-t border-slate-800 flex flex-wrap gap-5 mt-auto font-mono text-sm relative z-20">
                     {project.githubUrl && (
-                      <div className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group/link">
+                      <a 
+                        href={project.githubUrl.startsWith('http') ? project.githubUrl : `https://${project.githubUrl}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group/link"
+                      >
                         <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          width="24" 
-                          height="24" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
+                          xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
                           className="w-4 h-4"
                         >
                           <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 8 18v4"></path>
                           <path d="M12 18h.01"></path>
                         </svg>
                         <span className="group-hover/link:underline decoration-slate-600 underline-offset-4">view-source</span>
-                      </div>
+                      </a>
                     )}
                     {project.demoUrl && (
-                      <div className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors group/link">
+                      <a 
+                        href={project.demoUrl.startsWith('http') ? project.demoUrl : `https://${project.demoUrl}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors group/link"
+                      >
                         <ExternalLink className="w-4 h-4" /> 
                         <span className="group-hover/link:underline decoration-blue-500/30 underline-offset-4">view-demo</span>
-                      </div>
+                      </a>
                     )}
                   </div>
                   
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

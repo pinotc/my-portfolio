@@ -50,9 +50,6 @@ export default async function AllBlogPage() {
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-yellow-500/80 transition-colors" />
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-green-500/80 transition-colors" />
                   </div>
-                  <span className="ml-3 text-xs text-slate-500 select-none truncate max-w-[150px]">
-                    {post.slug}.md
-                  </span>
                 </div>
                 <span className="px-2 py-0.5 text-[10px] font-semibold rounded uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
                   {post.category.name}

@@ -40,9 +40,6 @@ export default async function AllAlbumsPage() {
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-yellow-500/80 transition-colors" />
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-green-500/80 transition-colors" />
                   </div>
-                  <span className="ml-3 text-xs text-slate-500 truncate">
-                    {album.title.split(' ')[0].toLowerCase()}.raw
-                  </span>
                 </div>
                 <span className="px-2 py-0.5 text-[10px] font-semibold rounded uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">
                   {album.category}

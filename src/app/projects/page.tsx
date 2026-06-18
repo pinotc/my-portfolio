@@ -43,9 +43,6 @@ export default async function AllProjectsPage() {
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-yellow-500/80 transition-colors" />
                     <div className="w-3 h-3 rounded-full bg-slate-700 group-hover:bg-green-500/80 transition-colors" />
                   </div>
-                  <span className="ml-3 text-xs text-slate-500 select-none">
-                    src/projects/<span className="text-yellow-300">{project.title.toLowerCase().replace(/\s+/g, '_')}</span>.tsx
-                  </span>
                 </div>
               </div>
 
