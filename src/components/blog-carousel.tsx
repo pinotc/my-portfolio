@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowLeft, BookOpen, MessageSquare } from "lucide-react";
+import { BookOpen, MessageSquare } from "lucide-react";
+// Nhớ kiểm tra lại đường dẫn import này cho khớp với thư mục của bạn nhé
+import AutoScrollCarousel from "@/components/AutoScrollCarousel"; 
 
 // Hàm helper để lọc HTML tags
 const stripHtml = (html: string) => {
@@ -11,30 +12,20 @@ const stripHtml = (html: string) => {
 };
 
 export function BlogCarousel({ posts }: { posts: any[] }) {
-  const [currentPage, setCurrentPage] = useState(0);
-  const postsPerPage = 3; // Số lượng bài viết tối đa trên 1 trang
-
-  const totalPages = Math.ceil(posts.length / postsPerPage);
-  const startIndex = currentPage * postsPerPage;
-  const visiblePosts = posts.slice(startIndex, startIndex + postsPerPage);
-
-  const next_page = () => {
-    if (currentPage < totalPages - 1) setCurrentPage((prev) => prev + 1);
-  };
-
-  const prev_page = () => {
-    if (currentPage > 0) setCurrentPage((prev) => prev - 1);
-  };
+  // Nếu không có bài viết nào thì không render gì cả
+  if (!posts || posts.length === 0) return null;
 
   return (
-    <div>
-      {/* Grid danh sách bài viết */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {visiblePosts.map((post: any) => (
+    // Dùng negative margin (-mx-6) để lướt tràn viền mượt mà giống Project
+    <div className="-mx-6 px-6 lg:-mx-8 lg:px-8"> 
+      <AutoScrollCarousel>
+        {/* Nhân 4 mảng bài viết lên để vòng lặp vô tận trơn tru */}
+        {[...posts, ...posts, ...posts, ...posts].map((post: any, index: number) => (
           <Link
             href={`/blog/${post.slug}`}
-            key={post.id}
-            className="group flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] cursor-pointer"
+            key={`${post.id}-${index}`} // Thêm index vào key để không bị trùng ID khi nhân mảng
+            // THÊM: snap-start, w-[...], shrink-0 để biến thẻ thành block lướt ngang
+            className="snap-start w-[85vw] sm:w-[350px] md:w-[400px] shrink-0 group flex flex-col rounded-lg bg-[#0d1117] border border-slate-800 shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] cursor-pointer"
           >
             {/* 1. Thanh tiêu đề (Top Bar) phong cách CODING */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/80 border-b border-slate-800">
@@ -46,7 +37,7 @@ export function BlogCarousel({ posts }: { posts: any[] }) {
                 </div>
               </div>
               <span className="px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">
-                {post.category.name}
+                {post.category?.name || "Blog"}
               </span>
             </div>
 
@@ -69,21 +60,22 @@ export function BlogCarousel({ posts }: { posts: any[] }) {
             {/* 3. Nội dung (Body) */}
             <div className="p-6 flex flex-col flex-1 font-sans">
               <div className="flex items-start gap-2 mb-3 text-slate-500 font-mono text-sm mt-1">
-                <h3 className="text-xl font-bold text-white font-sans line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors">
+                <h3 className="text-xl font-bold text-white font-sans line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors min-h-[56px]">
                   {post.title}
                 </h3>
               </div>
               <p className="text-sm text-slate-300 leading-relaxed line-clamp-3 mb-6">
                 {stripHtml(post.content)}
               </p>
+              
               <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between font-mono">
                 <div className="flex gap-2">
-                  {post.tags.slice(0, 2).map((tag: any) => (
-                    <span key={tag.id} className="text-[11px] font-medium text-slate-400 bg-slate-800/50 border border-slate-700/50 px-2 py-0.5 rounded">
+                  {post.tags && post.tags.slice(0, 2).map((tag: any) => (
+                    <span key={tag.id || tag.name} className="text-[11px] font-medium text-slate-400 bg-slate-800/50 border border-slate-700/50 px-2 py-0.5 rounded">
                       #{tag.name}
                     </span>
                   ))}
-                  {post.tags.length > 2 && (
+                  {post.tags && post.tags.length > 2 && (
                     <span className="text-[11px] font-medium text-slate-500 px-1 py-0.5">
                       +{post.tags.length - 2}
                     </span>
@@ -102,7 +94,7 @@ export function BlogCarousel({ posts }: { posts: any[] }) {
             </div>
           </Link>
         ))}
-      </div>
+      </AutoScrollCarousel>
     </div>
   );
 }
