@@ -106,24 +106,28 @@ export default async function HomePage() {
         {/* CÁC THẺ BADGE - Phong cách Syntax Highlighting */}
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8 font-mono text-sm md:text-base">
           
-          {/* ROLE ĐỘNG (Khai báo biến) */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-md border border-emerald-500/30 rounded-md text-emerald-300 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]">
-            <Briefcase className="w-4 h-4 text-emerald-500" />
-            <span><span className="text-pink-500"></span> role <span className="text-blue-400">=</span> <span className="text-yellow-300">"<TypewriterText text={homeProfile.primaryRole} />"</span></span>
+          {/* ROLE */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-950/80 backdrop-blur-md border border-teal-400/25 rounded-md text-teal-300 shadow-[inset_0_0_12px_rgba(251,191,36,0.06),0_0_12px_rgba(251,191,36,0.04)]">
+            <Briefcase className="w-4 h-4 text-teal-400" />
+            <span className="text-slate-500">{"<"}</span>
+            <TypewriterText text={homeProfile.primaryRole} />
+            <span className="text-slate-500">{"/>"}</span>
           </div>
 
-          {/* LIST SKILL ĐỘNG (Thẻ Component) */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-md border border-blue-500/30 rounded-md text-blue-300 shadow-[inset_0_0_10px_rgba(59,130,246,0.1)]">
-            <Laptop className="w-4 h-4 text-blue-500" />
-            <span className="text-slate-400">{"<"}</span>
+          {/* SKILLS */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-950/80 backdrop-blur-md border border-violet-400/25 rounded-md text-violet-300 shadow-[inset_0_0_12px_rgba(167,139,250,0.06),0_0_12px_rgba(167,139,250,0.04)]">
+            <Laptop className="w-4 h-4 text-violet-400" />
+            <span className="text-slate-500">{"<"}</span>
             <SkillTyper skills={homeProfile.skills} />
-            <span className="text-slate-400">{"/>"}</span>
+            <span className="text-slate-500">{"/>"}</span>
           </div>
 
-          {/* ĐỊA ĐIỂM ĐỘNG (Object Property) */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-md border border-cyan-500/30 rounded-md text-cyan-300 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]">
-            <MapPin className="w-4 h-4 text-cyan-500" />
-            <span>loc: <span className="text-yellow-300">"<TypewriterText text={homeProfile.location}/>"</span></span>
+          {/* LOCATION */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-950/80 backdrop-blur-md border border-cyan-400/25 rounded-md text-cyan-300 shadow-[inset_0_0_12px_rgba(34,211,238,0.06),0_0_12px_rgba(34,211,238,0.04)]">
+            <MapPin className="w-4 h-4 text-cyan-400" />
+            <span className="text-slate-500">{"<"}</span>
+            <TypewriterText text={homeProfile.location} />
+            <span className="text-slate-500">{"/>"}</span>
           </div>
         </div>
 
