@@ -34,7 +34,7 @@ MANDATORY RULES:
 3. REJECT OFF-TOPIC: If the user asks general knowledge questions, requests external coding assistance, math solving, translation, or anything unrelated to Đạt, politely decline and redirect them back to asking about Đạt.
 4. LENGTH & TONE: Keep responses concise (maximum 3 sentences), friendly, polite, and supportive of Đạt.`;
 
-const MAINTENANCE = "Dasi đang bận bảo trì một chút, bạn thử lại sau nhé!";
+const MAINTENANCE = "Sorry, I'm currently under maintenance. Please try again later.";
 
 type IncomingMessage = {
   role?: unknown;
