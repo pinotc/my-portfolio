@@ -1,4 +1,3 @@
-import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
@@ -35,13 +34,24 @@ MANDATORY RULES:
 3. REJECT OFF-TOPIC: If the user asks general knowledge questions, requests external coding assistance, math solving, translation, or anything unrelated to Đạt, politely decline and redirect them back to asking about Đạt.
 4. LENGTH & TONE: Keep responses concise (maximum 3 sentences), friendly, polite, and supportive of Đạt.`;
 
-const FALLBACK = "Xin lỗi, Dasi đang bận một chút!";
+const MAINTENANCE = "Dasi đang bận bảo trì một chút, bạn thử lại sau nhé!";
 
 type IncomingMessage = {
   role?: unknown;
   message?: unknown;
   text?: unknown;
   content?: unknown;
+};
+
+type ChatTurn = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+type ProviderContext = {
+  systemPrompt: string;
+  history: ChatTurn[];
+  message: string;
 };
 
 function historyContent(item: IncomingMessage) {
@@ -57,12 +67,147 @@ function saveLog(sessionId: string, role: "user" | "bot", message: string) {
     .catch(console.error);
 }
 
-export async function POST(request: Request) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "GROQ_API_KEY is not set" }, { status: 500 });
-  }
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown provider error";
+}
 
+async function readFailure(response: Response, apiKey: string) {
+  const raw = await response.text();
+  const snippet = raw.slice(0, 240).replaceAll(apiKey, "[redacted]");
+  throw new Error(`HTTP ${response.status} ${snippet}`);
+}
+
+async function chatCompletion(
+  url: string,
+  apiKey: string,
+  model: string,
+  messages: { role: "system" | "user" | "assistant"; content: string }[],
+  extraHeaders?: HeadersInit,
+) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      ...extraHeaders,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.6,
+      max_tokens: 300,
+    }),
+  });
+
+  if (!response.ok) await readFailure(response, apiKey);
+
+  const data = (await response.json()) as {
+    choices?: { message?: { content?: string | null } }[];
+  };
+  const text = data.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error(`${model} returned an empty response`);
+  return text;
+}
+
+async function tryModels(
+  models: string[],
+  call: (model: string) => Promise<string>,
+) {
+  let last: Error | null = null;
+  for (const model of models) {
+    try {
+      return await call(model);
+    } catch (error) {
+      last = error instanceof Error ? error : new Error(errorMessage(error));
+    }
+  }
+  throw last ?? new Error("Provider returned no response");
+}
+
+function openAIMessages(ctx: ProviderContext) {
+  return [
+    { role: "system" as const, content: ctx.systemPrompt },
+    ...ctx.history,
+    { role: "user" as const, content: ctx.message },
+  ];
+}
+
+async function askGroq(apiKey: string, ctx: ProviderContext) {
+  return tryModels(["openai/gpt-oss-20b", "openai/gpt-oss-120b"], (model) =>
+    chatCompletion(
+      "https://api.groq.com/openai/v1/chat/completions",
+      apiKey,
+      model,
+      openAIMessages(ctx),
+    ),
+  );
+}
+
+async function askMistral(apiKey: string, ctx: ProviderContext) {
+  return tryModels(["mistral-small-latest", "open-mistral-nemo"], (model) =>
+    chatCompletion(
+      "https://api.mistral.ai/v1/chat/completions",
+      apiKey,
+      model,
+      openAIMessages(ctx),
+    ),
+  );
+}
+
+async function askGemini(apiKey: string, ctx: ProviderContext) {
+  const contents = [
+    ...ctx.history.map((item) => ({
+      role: item.role === "assistant" ? "model" : "user",
+      parts: [{ text: item.content }],
+    })),
+    { role: "user", parts: [{ text: ctx.message }] },
+  ];
+
+  return tryModels(["gemini-2.5-flash", "gemini-1.5-flash"], async (model) => {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: ctx.systemPrompt }] },
+          contents,
+          generationConfig: { temperature: 0.6, maxOutputTokens: 300 },
+        }),
+      },
+    );
+    if (!response.ok) await readFailure(response, apiKey);
+    const data = (await response.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = data.candidates?.[0]?.content?.parts
+      ?.map((part) => part.text ?? "")
+      .join("")
+      .trim();
+    if (!text) throw new Error(`${model} returned an empty response`);
+    return text;
+  });
+}
+
+async function askOpenRouter(apiKey: string, ctx: ProviderContext) {
+  const headers = {
+    "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001",
+    "X-Title": "Le Dat Portfolio",
+  };
+  return tryModels(
+    ["openrouter/free", "meta-llama/llama-3.3-70b-instruct:free"],
+    (model) =>
+      chatCompletion(
+        "https://openrouter.ai/api/v1/chat/completions",
+        apiKey,
+        model,
+        openAIMessages(ctx),
+        headers,
+      ),
+  );
+}
+
+export async function POST(request: Request) {
   let body: {
     message?: unknown;
     history?: unknown;
@@ -103,33 +248,37 @@ export async function POST(request: Request) {
         content,
       };
     })
-    .filter((item): item is { role: "user" | "assistant"; content: string } => item !== null)
+    .filter((item): item is ChatTurn => item !== null)
     .slice(-12);
 
-  await saveLog(sessionId, "user", message);
+  void saveLog(sessionId, "user", message);
 
-  const systemPrompt = body.language === "en" ? PROMPT_EN : PROMPT_VI;
-  const groq = new Groq({ apiKey });
+  const ctx: ProviderContext = {
+    systemPrompt: body.language === "en" ? PROMPT_EN : PROMPT_VI,
+    history: formattedHistory,
+    message,
+  };
 
-  try {
-    const completion = await groq.chat.completions.create({
-      model: "openai/gpt-oss-20b",
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...formattedHistory,
-        { role: "user", content: message },
-      ],
-      temperature: 0.6,
-      max_tokens: 300,
-    });
+  const providers: { name: string; apiKey?: string; run: (apiKey: string) => Promise<string> }[] = [
+    { name: "Groq", apiKey: process.env.GROQ_API_KEY, run: (apiKey) => askGroq(apiKey, ctx) },
+    { name: "Mistral", apiKey: process.env.MISTRAL_API_KEY, run: (apiKey) => askMistral(apiKey, ctx) },
+    { name: "Gemini", apiKey: process.env.GEMINI_API_KEY, run: (apiKey) => askGemini(apiKey, ctx) },
+    { name: "OpenRouter", apiKey: process.env.OPENROUTER_API_KEY, run: (apiKey) => askOpenRouter(apiKey, ctx) },
+  ];
 
-    const responseText = completion.choices[0]?.message?.content?.trim() || FALLBACK;
-    await saveLog(sessionId, "bot", responseText);
-    return NextResponse.json({ text: responseText, sessionId });
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : "Groq request failed";
-    console.error("Groq request failed:", detail.replaceAll(apiKey, "[redacted]"));
-    await saveLog(sessionId, "bot", FALLBACK);
-    return NextResponse.json({ text: FALLBACK, sessionId });
+  for (const provider of providers) {
+    if (!provider.apiKey) continue;
+    try {
+      const responseText = await provider.run(provider.apiKey);
+      void saveLog(sessionId, "bot", responseText);
+      return NextResponse.json({ text: responseText, sessionId, provider: provider.name });
+    } catch (error) {
+      console.error(
+        `[AI Fallback] ${provider.name} failed: ${errorMessage(error).replaceAll(provider.apiKey, "[redacted]")}. Trying next provider...`,
+      );
+    }
   }
+
+  void saveLog(sessionId, "bot", MAINTENANCE);
+  return NextResponse.json({ text: MAINTENANCE, sessionId, provider: null });
 }
