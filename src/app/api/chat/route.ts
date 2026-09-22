@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,10 +61,19 @@ function historyContent(item: IncomingMessage) {
   return "";
 }
 
-function saveLog(sessionId: string, role: "user" | "bot", message: string) {
-  return prisma.chatLog
-    .create({ data: { sessionId, role, message } })
-    .catch(console.error);
+async function saveChatLog(sessionId: string, role: "user" | "bot", message: string) {
+  const label = role === "user" ? "User Message" : "Bot Message";
+  try {
+    await prisma.chatLog.create({
+      data: {
+        sessionId,
+        role,
+        message,
+      },
+    });
+  } catch (dbErr) {
+    console.error(`[Prisma ChatLog Error - ${label}]:`, dbErr);
+  }
 }
 
 function errorMessage(error: unknown) {
@@ -233,7 +242,7 @@ export async function POST(request: Request) {
 
   const providedSession =
     typeof body.sessionId === "string" ? body.sessionId.trim() : "";
-  const sessionId =
+  const currentSessionId =
     providedSession.length > 0 && providedSession.length <= 80
       ? providedSession
       : crypto.randomUUID();
@@ -251,7 +260,7 @@ export async function POST(request: Request) {
     .filter((item): item is ChatTurn => item !== null)
     .slice(-12);
 
-  void saveLog(sessionId, "user", message);
+  await saveChatLog(currentSessionId, "user", message);
 
   const ctx: ProviderContext = {
     systemPrompt: body.language === "en" ? PROMPT_EN : PROMPT_VI,
@@ -270,8 +279,12 @@ export async function POST(request: Request) {
     if (!provider.apiKey) continue;
     try {
       const responseText = await provider.run(provider.apiKey);
-      void saveLog(sessionId, "bot", responseText);
-      return NextResponse.json({ text: responseText, sessionId, provider: provider.name });
+      await saveChatLog(currentSessionId, "bot", responseText);
+      return NextResponse.json({
+        text: responseText,
+        sessionId: currentSessionId,
+        provider: provider.name,
+      });
     } catch (error) {
       console.error(
         `[AI Fallback] ${provider.name} failed: ${errorMessage(error).replaceAll(provider.apiKey, "[redacted]")}. Trying next provider...`,
@@ -279,6 +292,10 @@ export async function POST(request: Request) {
     }
   }
 
-  void saveLog(sessionId, "bot", MAINTENANCE);
-  return NextResponse.json({ text: MAINTENANCE, sessionId, provider: null });
+  await saveChatLog(currentSessionId, "bot", MAINTENANCE);
+  return NextResponse.json({
+    text: MAINTENANCE,
+    sessionId: currentSessionId,
+    provider: null,
+  });
 }
