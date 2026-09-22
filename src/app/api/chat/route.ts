@@ -1,4 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -34,35 +35,20 @@ MANDATORY RULES:
 3. REJECT OFF-TOPIC: If the user asks general knowledge questions, requests external coding assistance, math solving, translation, or anything unrelated to Đạt, politely decline and redirect them back to asking about Đạt.
 4. LENGTH & TONE: Keep responses concise (maximum 3 sentences), friendly, polite, and supportive of Đạt.`;
 
+const FALLBACK = "Xin lỗi, Dasi đang bận một chút!";
+
 type IncomingMessage = {
   role?: unknown;
+  message?: unknown;
+  text?: unknown;
   content?: unknown;
 };
 
-function toContents(history: IncomingMessage[], message: string) {
-  const turns = history
-    .filter(
-      (item): item is { role: "user" | "assistant"; content: string } =>
-        (item.role === "user" || item.role === "assistant") &&
-        typeof item.content === "string" &&
-        item.content.trim().length > 0,
-    )
-    .slice(-12)
-    .map((item) => ({
-      role: item.role === "assistant" ? ("model" as const) : ("user" as const),
-      parts: [{ text: item.content.slice(0, 2000) }],
-    }));
-
-  const contents = [
-    ...turns,
-    { role: "user" as const, parts: [{ text: message }] },
-  ];
-
-  while (contents[0]?.role === "model") {
-    contents.shift();
-  }
-
-  return contents;
+function historyContent(item: IncomingMessage) {
+  if (typeof item.message === "string" && item.message.trim()) return item.message;
+  if (typeof item.text === "string" && item.text.trim()) return item.text;
+  if (typeof item.content === "string" && item.content.trim()) return item.content;
+  return "";
 }
 
 function saveLog(sessionId: string, role: "user" | "bot", message: string) {
@@ -72,9 +58,9 @@ function saveLog(sessionId: string, role: "user" | "bot", message: string) {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return Response.json({ error: "GEMINI_API_KEY is not set" }, { status: 500 });
+    return NextResponse.json({ error: "GROQ_API_KEY is not set" }, { status: 500 });
   }
 
   let body: {
@@ -86,18 +72,18 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const message = typeof body.message === "string" ? body.message.trim() : "";
   if (!message) {
-    return Response.json({ error: "Message is required" }, { status: 400 });
+    return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
   if (message.length > 2000) {
-    return Response.json({ error: "Message is too long" }, { status: 400 });
+    return NextResponse.json({ error: "Message is too long" }, { status: 400 });
   }
   if (body.language !== "vi" && body.language !== "en") {
-    return Response.json({ error: "Language must be vi or en" }, { status: 400 });
+    return NextResponse.json({ error: "Language must be vi or en" }, { status: 400 });
   }
 
   const providedSession =
@@ -108,30 +94,42 @@ export async function POST(request: Request) {
       : crypto.randomUUID();
 
   const history = Array.isArray(body.history) ? (body.history as IncomingMessage[]) : [];
+  const formattedHistory = history
+    .map((item) => {
+      const content = historyContent(item).slice(0, 2000);
+      if (!content) return null;
+      return {
+        role: item.role === "user" ? ("user" as const) : ("assistant" as const),
+        content,
+      };
+    })
+    .filter((item): item is { role: "user" | "assistant"; content: string } => item !== null)
+    .slice(-12);
+
   await saveLog(sessionId, "user", message);
 
-  const ai = new GoogleGenAI({ apiKey });
+  const systemPrompt = body.language === "en" ? PROMPT_EN : PROMPT_VI;
+  const groq = new Groq({ apiKey });
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: toContents(history, message),
-      config: {
-        systemInstruction: body.language === "en" ? PROMPT_EN : PROMPT_VI,
-      },
+    const completion = await groq.chat.completions.create({
+      model: "openai/gpt-oss-20b",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...formattedHistory,
+        { role: "user", content: message },
+      ],
+      temperature: 0.6,
+      max_tokens: 300,
     });
 
-    const text = response.text?.trim();
-    if (!text) {
-      return Response.json({ error: "Empty response from Gemini", sessionId }, { status: 502 });
-    }
-
-    await saveLog(sessionId, "bot", text);
-    return Response.json({ text, sessionId });
+    const responseText = completion.choices[0]?.message?.content?.trim() || FALLBACK;
+    await saveLog(sessionId, "bot", responseText);
+    return NextResponse.json({ text: responseText, sessionId });
   } catch (error) {
-    const detail = error instanceof Error ? error.message : "Gemini request failed";
-    const redacted = detail.replaceAll(apiKey, "[redacted]");
-    console.error("Gemini request failed:", redacted);
-    return Response.json({ error: "Gemini request failed", sessionId }, { status: 502 });
+    const detail = error instanceof Error ? error.message : "Groq request failed";
+    console.error("Groq request failed:", detail.replaceAll(apiKey, "[redacted]"));
+    await saveLog(sessionId, "bot", FALLBACK);
+    return NextResponse.json({ text: FALLBACK, sessionId });
   }
 }
