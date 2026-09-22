@@ -23,7 +23,11 @@ export default async function BlogPostPage({
       category: true,
       tags: true,
       comments: {
+        where: { parentId: null },
         orderBy: { createdAt: "desc" },
+        include: {
+          replies: { orderBy: { createdAt: "asc" } },
+        },
       },
     },
   });
@@ -119,6 +123,18 @@ export default async function BlogPostPage({
                   <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
                     {comment.content}
                   </p>
+                  {comment.replies.length > 0 ? (
+                    <div className="mt-3 space-y-2 border-l border-emerald-500/30 pl-3">
+                      {comment.replies.map((reply) => (
+                        <div key={reply.id}>
+                          <span className="text-emerald-400 text-xs">{reply.author}</span>
+                          <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
+                            {reply.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ))
             )}

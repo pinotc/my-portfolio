@@ -12,7 +12,8 @@ import {
   Home,
   Mail,
   BookOpen, // Thêm icon cho Blog
-  Settings  // Thêm icon cho Settings
+  Settings,  // Thêm icon cho Settings
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -38,6 +39,7 @@ export default async function AdminLayout({
     { name: "Education", href: "/admin/education", icon: GraduationCap },
     { name: "Experience", href: "/admin/experience", icon: Briefcase },
     { name: "Messages & Feedback", href: "/admin/messages", icon: Mail },
+    { name: "Chat Logs", href: "/admin/chat-logs", icon: MessageSquare },
     { name: "Blog", href: "/admin/blog", icon: BookOpen }, 
     { name: "Media", href: "/admin/media", icon: ImageIcon },
     { name: "Profile", href: "/admin/profile", icon: User },

@@ -177,11 +177,21 @@ model BlogTag {
 
 model Comment {
   id        String   @id @default(cuid())
-  author    String
   content   String   @db.Text
+  author    String
+  isAdmin   Boolean  @default(false)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
   postId    String
   post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([parentId])
 }
 
 // ================= MEDIA (Photography & Adventure) =================
@@ -274,4 +284,14 @@ model GlobalSetting {
   logoUrl     String?
   faviconUrl  String?
   updatedAt   DateTime @updatedAt
+}
+
+model ChatLog {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String // "user" or "bot"
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
 }

@@ -8,6 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 // @ts-ignore
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FloatingMascot } from "@/components/FloatingMascot";
 const inter = Inter({ subsets: ["latin"] });
 
 // Gộp chung cấu hình SEO vào một hàm động duy nhất
@@ -42,6 +43,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <FloatingMascot />
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
