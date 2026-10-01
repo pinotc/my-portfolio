@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { getGlobalSettings } from "@/server/actions/settings";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
 // TypeScript may complain about missing type declarations for CSS imports in some setups.
 // Suppress the error for this side-effect import.
 // @ts-ignore
@@ -45,6 +46,7 @@ export default function RootLayout({
         </ThemeProvider>
         <FloatingMascot />
         {gaId && <GoogleAnalytics gaId={gaId} />}
+        <Analytics />
       </body>
     </html>
   );
